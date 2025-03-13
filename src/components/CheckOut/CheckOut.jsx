@@ -50,10 +50,11 @@ import styles from "./CheckOut.module.css";
 import { useCart, useCategories } from "../../Store";
 import axios from "axios";
 import Swal from "sweetalert2";
+import moment from "moment";
 
 export default function CheckOut() {
   const { domain } = useCategories();
-  const { closeCheckOut, productInCart ,resetCart ,closeCart } = useCart();
+  const { closeCheckOut, productInCart, resetCart, closeCart } = useCart();
   const [customerAmount, setCustomerAmount] = useState("");
   const [remain, setRemain] = useState(0);
 
@@ -66,19 +67,13 @@ export default function CheckOut() {
     return productInCart.reduce((acc, el) => acc + el.price * el.quantity, 0);
   };
 
-  // const handleCustomerAmount = (e) => {
-  //   const value = e.target.value;
-  //   setCustomerAmount(value);
-  //   const numericValue = value === parseFloat(value);
-  //   setRemain(numericValue - getTotal());
-  // };
   const handleCustomerAmount = (e) => {
     setCustomerAmount(e.target.value);
     setRemain(+e.target.value - getTotal());
   };
 
   const createRecords = (invoiceId) => {
-    productInCart.forEach((el, index) => {
+    productInCart.forEach((el) => {
       let url = domain + "/api/invoices-details";
       let data = {
         product_qty: el.quantity,
@@ -91,7 +86,7 @@ export default function CheckOut() {
       };
       axios
         .post(url, { data: data })
-        .then((res) => {
+        .then(() => {
           console.log("record saved to DB");
         })
         .catch((err) => {
@@ -111,12 +106,12 @@ export default function CheckOut() {
   };
 
   const createNewInvoice = (total) => {
+    let user_id = JSON.parse(sessionStorage.getItem("userInfo")).user_id;
     let endPoint = "/api/invoices";
     let data = {
-      invoices_total: total,
-      pos_user: {
-        connect: ["rynoyachwzdlns12zgc30mxf"],
-      },
+      invoice_total: total,
+      invoice_date: moment().format('YYYY-MM-DD'),
+      pos_user: { connect: [user_id] },
     };
     let url = domain + endPoint;
     axios
@@ -124,8 +119,6 @@ export default function CheckOut() {
       .then((res) => {
         let newInvoiceId = res.data.data.documentId;
         createRecords(newInvoiceId);
-        // console.log(res.data.data.documentId);
-        // console.log("Creates new invoice" + newInvoiceId);
       })
       .catch((err) => {
         console.log(err);

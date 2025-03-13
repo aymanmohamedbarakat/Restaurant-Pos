@@ -71,7 +71,7 @@
 //           <tfoot>
 //             <tr>
 //               <th colSpan="4">Total</th>
-//               <th>{details && details.invoices_total}</th>
+//               <th>{details && details.invoice_total}</th>
 //             </tr>
 //           </tfoot>
 //         </table>
@@ -206,7 +206,7 @@
 //                       Total
 //                     </td>
 //                     <td id={styles.totalAmount}>
-//                       ${Number(details?.invoices_total || 0).toFixed(2)}
+//                       ${Number(details?.invoice_total || 0).toFixed(2)}
 //                     </td>
 //                   </tr>
 //                 </tfoot>
@@ -337,7 +337,7 @@ export default function InvoiceDetails() {
                       Total
                     </td>
                     <td id={styles.totalAmount}>
-                      ${Number(details?.invoices_total || 0).toFixed(2)}
+                      ${Number(details?.invoice_total || 0).toFixed(2)}
                     </td>
                   </tr>
                 </tfoot>

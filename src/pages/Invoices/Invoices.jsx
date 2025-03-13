@@ -45,7 +45,7 @@
 //               <span>Done By {el.pos_user.user_name} </span>
 //             </div>
 //             <div className="d-flex flex-column">
-//             <h3>{el.invoices_total.toFixed(2)}</h3>
+//             <h3>{el.invoice_total.toFixed(2)}</h3>
 //             <span>{moment(el.createdAt).format('HH:mm')}</span>
 //             </div>
 //           </div>
@@ -65,22 +65,48 @@ import { FaReceipt, FaSearch, FaCalendarAlt } from "react-icons/fa";
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(
-    moment().format("YYYY-MM-DD")
-  );
+  const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
   const { domain } = useCategories();
   const { index, openDetails, setActiveInvoiceId } = useInvoiceDetails();
 
-  const getInvoices = (date = selectedDate) => {
-    setLoading(true);
+  const getInvoices = (date) => {
+    let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
+    let user_id = userInfo.user_id;
+    if (!date) { date = moment().format("YYYY-MM-DD") }
+
     let url = domain + "/api/invoices";
     axios
       .get(url, {
-       params: { populate: "*" },
+        params: {
+          populate: {
+            pos_user: {
+              populate: "*",
+            }
+          },
+          filters: {
+            $and: [
+              {
+                invoice_date: {
+                  $eq: date
+                }
+              }, {
+                pos_user: {
+                  documentId: {
+                    $eq: user_id
+                  }
+                }
+              }
+            ]
+          }
+        },
       })
       .then((res) => {
-        setInvoices(res.data.data);
+        if (res.data.data) {
+          setInvoices(res.data.data);
+        } else {
+          setInvoices()
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -91,9 +117,12 @@ export default function Invoices() {
 
   useEffect(() => {
     getInvoices();
-  }, [selectedDate]);
+  }, []);
+
+  // useEffect(() => { getInvoices(selectedDate) }, [selectedDate]);
 
   const handleDateChange = (e) => {
+    getInvoices(e.target.value)
     setSelectedDate(e.target.value);
   };
 
@@ -123,12 +152,6 @@ export default function Invoices() {
               max={moment().format("YYYY-MM-DD")}
             />
           </div>
-          {/* <button
-            className="btn btn-primary ms-5"
-            onClick={() => getInvoices()}
-          >
-            <FaSearch /> Filter
-          </button> */}
         </div>
       </div>
 
@@ -144,13 +167,13 @@ export default function Invoices() {
         </div>
       ) : (
         <div className="row g-4">
-          {invoices.map((invoice) => (
+          {invoices && invoices.map((invoice) => (
             <div
               key={invoice.documentId}
               className="col-12 col-md-6 col-lg-4"
             >
               <div
-              id={styles.invoiceCard}
+                id={styles.invoiceCard}
                 className="card h-100 shadow-sm"
                 onClick={() => handleViewInvoice(invoice)}
               >
@@ -166,14 +189,14 @@ export default function Invoices() {
                       <small>Processed by:</small>
                       <br />
                       <strong>
-                      {invoice.pos_user.user_name}
+                        {invoice.pos_user.user_name}
                       </strong>
                     </p>
                     <div className="text-end">
                       <small className="text-muted">Total:</small>
                       <br />
                       <h4 className="text-success mb-0">
-                        ${invoice.invoices_total.toFixed(2)}
+                        ${invoice.invoice_total}
                       </h4>
                     </div>
                   </div>

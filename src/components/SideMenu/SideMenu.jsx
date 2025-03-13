@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./SideMenu.module.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RiShoppingBag3Fill } from "react-icons/ri";
@@ -7,8 +7,11 @@ import { GiHamburger } from "react-icons/gi";
 import { HiDocumentCurrencyDollar } from "react-icons/hi2";
 import { LuSettings2 } from "react-icons/lu";
 import { FaUserCircle } from "react-icons/fa";
+import axios from "axios";
+import { useCategories } from "../../Store";
 
 export default function SideMenu() {
+  const { domain } = useCategories();
   const navigate = useNavigate();
   const [links] = useState([
     { id: 1, name: "Dashboard", icon: <MdOutlineSpaceDashboard />, path: "/" },
@@ -33,10 +36,35 @@ export default function SideMenu() {
   ]);
 
   const [activeLink, setActiveLink] = useState(0);
+  const [userInfo, setUserInfo] = useState({});
 
   const handleLogOut = () => {
+    sessionStorage.clear();
     navigate("/login");
   };
+
+  useEffect(() => {
+    // Check If User is Logged in
+    let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
+    if (userInfo) {
+      let user_id = userInfo.user_id;
+      let url = domain + `/api/pos-users/${user_id}`;
+      axios.get(url).then(() => {
+        setUserInfo(userInfo);
+      }).catch(() => {
+        sessionStorage.clear();
+        navigate('/login');
+      })
+
+      // Check With Back end with User Id,
+    } else {
+      sessionStorage.clear();
+      navigate('/login');
+    }
+
+  }, []);
+
+
   return (
     <div
       className="d-flex flex-column justify-content-between border-end px-3 "
@@ -73,8 +101,8 @@ export default function SideMenu() {
       <div className="col-12 d-flex flex-column align-items-center pb-5">
         <FaUserCircle className="fs-3" />
         <img id={styles.userImg} />
-        <h3>User Name</h3>
-        <p>User Role</p>
+        <h3>{userInfo.user_name}</h3>
+        <p>{userInfo.user_role}</p>
         <button onClick={handleLogOut} className="btn btn-primary">
           Log Out
         </button>
