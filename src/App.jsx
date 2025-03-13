@@ -15,13 +15,14 @@ import Categories from "./pages/Categories/Categories";
 import { useCart, useCategories } from "./Store/index";
 import axios from "axios";
 import SideCart from "./components/SideCart/SideCart";
+import Invoices from "./pages/Invoices/Invoices";
 export default function App() {
   const { domain, setData } = useCategories(); //Global State
     const { cartIndex}= useCart()
   let [acceptedRoutes, setAcceptedRoutes] = useState([
     "/orders",
     "/settings",
-    "/bills",
+    "/invoices",
     "/",
   ]);
 
@@ -33,11 +34,11 @@ export default function App() {
   }, [location.pathname]);
 
   useEffect(() => {
-    console.log("data has been fetched & cached");
+
     let url = domain + "/api/categories";
     axios.get(url, { params: { populate: "*" } }).then((res) => {
       let cats = res.data.data;
-      console.log(cats);
+
       let routes = cats.map((el) => "/orders/" + el.documentId);
       setAcceptedRoutes([...acceptedRoutes, ...routes]);
       setData(cats);
@@ -53,7 +54,7 @@ export default function App() {
         {/* DynamicRoute */}
         <Route path="/orders/:id" element={<CategoryProducts />} />
         <Route path="/settings" element={<h1>settings</h1>} />
-        <Route path="/bills" element={<h1>bills</h1>} />
+        <Route path="/invoices" element={<Invoices />} />
         <Route path="/login" element={<h1>login</h1>} />
         <Route path="*" element={<h1>404 Page</h1>} />
       </Routes>

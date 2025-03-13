@@ -47,10 +47,13 @@
 
 import React, { useState } from "react";
 import styles from "./CheckOut.module.css";
-import { useCart } from "../../Store";
+import { useCart, useCategories } from "../../Store";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function CheckOut() {
-  const { closeCheckOut, productInCart } = useCart();
+  const { domain } = useCategories();
+  const { closeCheckOut, productInCart ,resetCart ,closeCart } = useCart();
   const [customerAmount, setCustomerAmount] = useState("");
   const [remain, setRemain] = useState(0);
 
@@ -69,10 +72,73 @@ export default function CheckOut() {
   //   const numericValue = value === parseFloat(value);
   //   setRemain(numericValue - getTotal());
   // };
-    const handleCustomerAmount = (e) => {
-      setCustomerAmount(e.target.value);
-      setRemain(+e.target.value - getTotal());
+  const handleCustomerAmount = (e) => {
+    setCustomerAmount(e.target.value);
+    setRemain(+e.target.value - getTotal());
+  };
+
+  const createRecords = (invoiceId) => {
+    productInCart.forEach((el, index) => {
+      let url = domain + "/api/invoices-details";
+      let data = {
+        product_qty: el.quantity,
+        invoice: {
+          connect: [invoiceId],
+        },
+        product: {
+          connect: [el.documentId],
+        },
+      };
+      axios
+        .post(url, { data: data })
+        .then((res) => {
+          console.log("record saved to DB");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+    Swal.fire({
+      icon: "success",
+      title: "Payment Successfully",
+      showConfirmButton: false,
+      timer: 1500,
+    }).then(() => {
+      closeCheckOut();
+      resetCart();
+      closeCart();
+    });
+  };
+
+  const createNewInvoice = (total) => {
+    let endPoint = "/api/invoices";
+    let data = {
+      invoices_total: total,
+      pos_user: {
+        connect: ["rynoyachwzdlns12zgc30mxf"],
+      },
     };
+    let url = domain + endPoint;
+    axios
+      .post(url, { data: data })
+      .then((res) => {
+        let newInvoiceId = res.data.data.documentId;
+        createRecords(newInvoiceId);
+        // console.log(res.data.data.documentId);
+        // console.log("Creates new invoice" + newInvoiceId);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const saveInvoice = () => {
+    // add fatora to the system with the total
+    let total = getTotal();
+    // console.log(total);
+    createNewInvoice(total);
+    //i will use the id of the current user
+  };
   return (
     <div className={styles.overlay} onClick={handleClose}>
       <div
@@ -117,7 +183,11 @@ export default function CheckOut() {
         </div>
 
         <div className="d-grid gap-2">
-          <button disabled={remain < 0} className="btn btn-primary btn-lg">
+          <button
+            onClick={saveInvoice}
+            disabled={remain < 0}
+            className="btn btn-primary btn-lg"
+          >
             Complete Payment
           </button>
         </div>

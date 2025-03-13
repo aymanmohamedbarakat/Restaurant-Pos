@@ -19,7 +19,7 @@ export default function ProductCard({
       product_img: imgUrl,
     };
     addToCart(obj);
-    console.log(obj);
+
   };
   //error
   return (

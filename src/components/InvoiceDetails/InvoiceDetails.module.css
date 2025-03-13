@@ -1,0 +1,112 @@
+#overlay {
+  z-index: 10000;
+  #modalContent {
+    #modalHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      background-color: #f8f9fa;
+      #closeButton {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s;
+        &:hover {
+          color: #dc3545;
+        }
+      }
+    }
+    #loadingContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+    }
+    #invoiceInfo {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #eee;
+      p {
+        margin: 0;
+        font-weight: 500;
+      }
+    }
+    #tableContainer {
+      padding: 1rem;
+      overflow-x: auto;
+      #detailsTable {
+        width: 100%;
+        border-collapse: collapse;
+        #detailsTable thead {
+          background-color: #f8f9fa;
+          #detailsTable th,
+          #detailsTable td {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+          }
+        }
+        #productCell {
+          display: flex;
+          align-items: center;
+          #productImage {
+            width: 50px;
+            height: 50px;
+            overflow: hidden;
+            margin-right: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            img {
+              max-width: 100%;
+              max-height: 100%;
+              object-fit: contain;
+            }
+            #productName {
+                font-weight: 500;
+              }
+          }
+        }
+        #totalLabel {
+            text-align: right;
+            font-weight: bold;
+          }#totalAmount {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #28a745;
+          }
+
+      }
+    }
+
+    #modalFooter {
+        margin-top: auto;
+        padding: 1rem;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+
+        #printButton {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            &:hover {
+                background-color: #0069d9;
+            }
+            
+          }
+      }
+  }
+}

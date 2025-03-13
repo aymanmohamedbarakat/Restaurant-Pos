@@ -20,9 +20,9 @@ export default function SideMenu() {
     },
     {
       id: 3,
-      name: "Bills",
+      name: "Invoices",
       icon: <HiDocumentCurrencyDollar />,
-      path: "/bills",
+      path: "/invoices",
     },
     {
       id: 4,

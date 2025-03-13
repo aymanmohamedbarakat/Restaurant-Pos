@@ -26,7 +26,6 @@ export default function CategoryProducts() {
         },
       })
       .then((res) => {
-        console.log(res.data.data);
         setCategoryInfo(res.data.data);
         setCheck(true);
       })
@@ -40,10 +39,10 @@ export default function CategoryProducts() {
   }, []);
   return (
     check &&
-    <div className="flex-grow-1">
+    <div className="flex-grow-1" id={styles.productContainer}>
       <NavHeader tabName={categoryInfo.category_name} />
       <h1>Category Product : {categoryInfo.category_name}</h1>
-      <div className="col-12 d-flex flex-wrap "> 
+      <div className="col-12 d-flex flex-wrap " > 
         {categoryInfo.products &&
           categoryInfo.products.map((el) => (
             <ProductCard

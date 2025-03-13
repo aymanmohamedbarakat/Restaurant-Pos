@@ -1,0 +1,14 @@
+#invoicesPage{
+    height: 100vh;
+    flex-grow: 1;
+    overflow: auto;
+    z-index: 1;
+    #invoiceCard {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        &:hover{
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+      }
+}

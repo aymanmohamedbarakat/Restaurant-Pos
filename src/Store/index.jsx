@@ -72,6 +72,15 @@ export const useCart = create((set) => ({
   resetCart: () => set(() => ({ productInCart: [] })),
 }));
 
+export const useInvoiceDetails = create((set) => ({
+  index: false,
+  activeInvoiceId: null,
+  closeDetails: () => set(() => ({ index: false })),
+  openDetails: () => set(() => ({ index: true })),
+
+  setActiveInvoiceId: (id) => set(() => ({ activeInvoiceId: id })),
+  resetActiveInvoiceId: () => set(() => ({ activeInvoiceId: null })),
+}));
 // import ColdCola from "../assets/imgs/categories/coldCola.png";
 // import burger from "../assets/imgs/categories/burger.png";
 // import pasta from "../assets/imgs/categories/Pasta.png";
