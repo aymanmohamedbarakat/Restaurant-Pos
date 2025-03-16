@@ -221,7 +221,7 @@ import moment from "moment";
 import { useCategories, useInvoiceDetails } from "../../Store";
 import axios from "axios";
 import InvoiceDetails from "../../components/InvoiceDetails/InvoiceDetails";
-import { FaReceipt, FaSearch, FaCalendarAlt } from "react-icons/fa";
+import { FaReceipt, FaCalendarAlt } from "react-icons/fa";
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
@@ -232,34 +232,87 @@ export default function Invoices() {
   const { domain } = useCategories();
   const { index, openDetails, setActiveInvoiceId } = useInvoiceDetails();
 
-  const getInvoices = (date = selectedDate) => {
-    setLoading(true);
-    let url = domain + "/api/invoices";
-    axios
-      .get(url, {
-        params: { populate: "*" },
-      })
-      .then((res) => {
-        setInvoices(res.data.data);
+  const getInvoices = (date) => {
+    try {
+      let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
+      if (!userInfo || !userInfo.user_id) {
+        console.error("Invalid user info in session storage");
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching invoices:", err);
-        setLoading(false);
-      });
+        return;
+      }
+      
+      let user_id = userInfo.user_id;
+      
+      if (!date) {
+        date = moment().format("YYYY-MM-DD");
+      } else {
+        date = moment(date).format("YYYY-MM-DD");
+      }
+      
+      setLoading(true);
+      console.log("Fetching invoices for date:", date, "user ID:", user_id);
+      
+      let url = domain + "/api/invoices";
+      axios
+        .get(url, {
+          params: {
+            populate: "*", // Simpler populate pattern
+            filters: {
+              $and: [
+                {
+                  invoice_date: {
+                    $eq: date
+                  },
+                },
+                {
+                  pos_user: {
+                    documentId: {
+                      $eq: user_id,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        })
+        .then((res) => {
+          console.log("API response:", res.data);
+          if (res.data.data) {
+            setInvoices(res.data.data);
+          } else {
+            setInvoices([]);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching invoices:", err);
+          setLoading(false);
+        });
+    } catch (error) {
+      console.error("Error in getInvoices:", error);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     getInvoices();
-  }, [selectedDate]);
+  }, []);
 
   const handleDateChange = (e) => {
+    getInvoices(e.target.value);
     setSelectedDate(e.target.value);
   };
 
   const handleViewInvoice = (invoice) => {
     openDetails();
     setActiveInvoiceId(invoice.documentId);
+  };
+
+  // Helper function to safely get the invoice total
+  const getInvoiceTotal = (invoice) => {
+    // Try multiple property names that could contain the total
+    const total = invoice.invoice_total || invoice.invoices_total || 0;
+    return Number(total).toFixed(2);
   };
 
   return (
@@ -283,12 +336,6 @@ export default function Invoices() {
               max={moment().format("YYYY-MM-DD")}
             />
           </div>
-          {/* <button
-            className="btn btn-primary ms-5"
-            onClick={() => getInvoices()}
-          >
-            <FaSearch /> Filter
-          </button> */}
         </div>
       </div>
 
@@ -305,7 +352,10 @@ export default function Invoices() {
       ) : (
         <div className="row g-4">
           {invoices.map((invoice) => (
-            <div key={invoice.documentId} className="col-12 col-md-6 col-lg-4">
+            <div
+              key={invoice.documentId}
+              className="col-12 col-md-6 col-lg-4"
+            >
               <div
                 id={styles.invoiceCard}
                 className="card h-100 shadow-sm"
@@ -322,14 +372,15 @@ export default function Invoices() {
                     <p className="text-muted mb-0">
                       <small>Processed by:</small>
                       <br />
-                      {/* <strong>{invoice.pos_user.user_name}</strong> */}
-                      <strong>{invoice.pos_user?.user_name || 'Unknown'}</strong>
+                      <strong>
+                        {invoice.pos_user?.user_name || "Unknown"}
+                      </strong>
                     </p>
                     <div className="text-end">
                       <small className="text-muted">Total:</small>
                       <br />
                       <h4 className="text-success mb-0">
-                        ${invoice.invoices_total.toFixed(2)}
+                        ${getInvoiceTotal(invoice)}
                       </h4>
                     </div>
                   </div>
@@ -345,5 +396,4 @@ export default function Invoices() {
     </div>
   );
 }
-
 /****************************************************** */

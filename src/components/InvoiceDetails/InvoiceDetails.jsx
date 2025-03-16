@@ -369,14 +369,17 @@ export default function InvoiceDetails() {
       setLoading(true);
       let endPoint = `/api/invoices/${activeInvoiceId}`;
       let url = domain + endPoint;
+
+      console.log("Fetching invoice details for ID:", activeInvoiceId);
+
       axios
         .get(url, {
           params: {
-            populate: "*", // ["pos_user", "invoices_details.product"],
+            populate: "*", // Use simple populate for everything
           },
         })
         .then((res) => {
-          console.log(res.data.data);
+          console.log("Invoice details response:", res.data.data);
           setDetails(res.data.data);
           setLoading(false);
         })
@@ -386,6 +389,14 @@ export default function InvoiceDetails() {
         });
     }
   }, [activeInvoiceId, domain]);
+
+  // Helper function to safely get the total
+  const getInvoiceTotal = () => {
+    if (!details) return "0.00";
+    // Try multiple property names that could contain the total
+    const total = details.invoice_total || details.invoices_total || 0;
+    return Number(total).toFixed(2);
+  };
 
   return (
     <div id={styles.overlay} onClick={closeDetails}>
@@ -416,7 +427,7 @@ export default function InvoiceDetails() {
               </div>
               <div>
                 <span className="text-muted">Cashier:</span>
-                <p>{details?.pos_user.user_name || "Unknown"}</p>
+                <p>{details?.pos_user?.user_name || "Unknown"}</p>
               </div>
             </div>
 
@@ -437,12 +448,15 @@ export default function InvoiceDetails() {
                       ? domain + item.product.product_img.url
                       : "";
 
-                    const price = Number(item.product?.product_price) || 0;
-                    const quantity = Number(item.product_qty) || 0;
+                    // Be flexible with where prices might be stored
+                    const price = Number(
+                      item.product_price || item.product?.product_price || 0
+                    );
+                    const quantity = Number(item.product_qty || 0);
                     const itemTotal = price * quantity;
 
                     return (
-                      <tr key={item.id || index}>
+                      <tr key={item.id || item.documentId || index}>
                         <td>{index + 1}</td>
                         <td id={styles.productCell}>
                           {imageUrl && (
@@ -469,9 +483,7 @@ export default function InvoiceDetails() {
                     <td colSpan="4" id={styles.totalLabel}>
                       Total
                     </td>
-                    <td id={styles.totalAmount}>
-                      ${Number(details?.invoices_total || 0).toFixed(2)}
-                    </td>
+                    <td id={styles.totalAmount}>${getInvoiceTotal()}</td>
                   </tr>
                 </tfoot>
               </table>

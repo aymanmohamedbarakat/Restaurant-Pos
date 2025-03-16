@@ -47,24 +47,25 @@ export default function SideMenu() {
     // Check If User is Logged in
     let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
     if (userInfo) {
+      // Check With Back end with User Id,
       let user_id = userInfo.user_id;
       let url = domain + `/api/pos-users/${user_id}`;
-      axios.get(url).then(() => {
-        setUserInfo(userInfo);
-      }).catch(() => {
-        sessionStorage.clear();
-        navigate('/login');
-      })
-
-      // Check With Back end with User Id,
+      axios
+        .get(url)
+        .then((res) => {
+          // console.log(res)
+          setUserInfo(userInfo);
+        })
+        .catch(() => {
+          sessionStorage.clear();
+          navigate("/login");
+        });
     } else {
-      console.log("hello")
-      // sessionStorage.clear();
-      // navigate('/login');
+      console.log("hello");
+      sessionStorage.clear();
+      navigate("/login");
     }
-
   }, []);
-
 
   return (
     <div

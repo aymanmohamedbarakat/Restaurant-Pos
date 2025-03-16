@@ -197,7 +197,7 @@ import Swal from "sweetalert2";
 
 export default function CheckOut() {
   const { domain } = useCategories();
-  const { closeCheckOut, productInCart ,resetCart ,closeCart } = useCart();
+  const { closeCheckOut, productInCart, resetCart, closeCart } = useCart();
   const [customerAmount, setCustomerAmount] = useState("");
   const [remain, setRemain] = useState(0);
 
@@ -255,11 +255,12 @@ export default function CheckOut() {
   };
 
   const createNewInvoice = (total) => {
+    let user_id = JSON.parse(sessionStorage.getItem("userInfo")).user_id;
     let endPoint = "/api/invoices";
     let data = {
       invoices_total: total,
       pos_user: {
-        connect: ["rynoyachwzdlns12zgc30mxf"],
+        connect: [user_id],
       },
     };
     let url = domain + endPoint;

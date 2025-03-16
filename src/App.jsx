@@ -16,7 +16,7 @@ import { useCart, useCategories } from "./Store/index";
 import axios from "axios";
 import SideCart from "./components/SideCart/SideCart";
 import Invoices from "./pages/Invoices/Invoices";
-import LoginPage from "./pages/Login/LoginPagee";
+import LoginPage from "./pages/Login/LoginPage";
 export default function App() {
   const { domain, setData } = useCategories(); //Global State
   const { cartIndex } = useCart();
@@ -55,7 +55,7 @@ export default function App() {
         <Route path="/orders/:id" element={<CategoryProducts />} />
         <Route path="/settings" element={<h1>settings</h1>} />
         <Route path="/invoices" element={<Invoices />} />
-        <Route path="/login" element={<h1>login</h1>} /> {/*//<LoginPage /> */}
+        <Route path="/login" element={<LoginPage /> } /> {/*//*/}
         <Route path="*" element={<h1>404 Page</h1>} />
       </Routes>
     </div>
