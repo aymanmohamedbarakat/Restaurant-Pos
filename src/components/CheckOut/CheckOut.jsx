@@ -194,6 +194,7 @@ import styles from "./CheckOut.module.css";
 import { useCart, useCategories } from "../../Store";
 import axios from "axios";
 import Swal from "sweetalert2";
+import moment from "moment";
 
 export default function CheckOut() {
   const { domain } = useCategories();
@@ -254,11 +255,31 @@ export default function CheckOut() {
     });
   };
 
+  //   const createNewInvoice = (total) => {
+//     let user_id = JSON.parse(sessionStorage.getItem("userInfo")).user_id;
+//     let endPoint = "/api/invoices";
+//     let data = {
+//       invoice_total: total,
+//       invoice_date: moment().format('YYYY-MM-DD'),
+//       pos_user: { connect: [user_id] },
+//     };
+//     let url = domain + endPoint;
+//     axios
+//       .post(url, { data: data })
+//       .then((res) => {
+//         let newInvoiceId = res.data.data.documentId;
+//         createRecords(newInvoiceId);
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//       });
+//   };
   const createNewInvoice = (total) => {
     let user_id = JSON.parse(sessionStorage.getItem("userInfo")).user_id;
     let endPoint = "/api/invoices";
     let data = {
       invoices_total: total,
+      invoice_date: moment().format('YYYY-MM-DD'),
       pos_user: {
         connect: [user_id],
       },

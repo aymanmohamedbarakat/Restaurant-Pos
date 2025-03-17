@@ -370,14 +370,43 @@ export default function InvoiceDetails() {
       let endPoint = `/api/invoices/${activeInvoiceId}`;
       let url = domain + endPoint;
 
-      console.log("Fetching invoice details for ID:", activeInvoiceId);
-
-      axios
-        .get(url, {
-          params: {
-            populate: "*", // Use simple populate for everything
+      // console.log("Fetching invoice details for ID:", activeInvoiceId);
+      // axios
+      //   .get(url, {
+      //     params: {
+      //       populate: ["pos_user", "invoices_details.product"],
+      //     },
+      //   })
+      // axios
+      //   .get(url, {
+      //     params: {
+      //       populate: {
+      //         invoices_details: {
+      //           populate: {
+      //             product: {
+      //               populate: "*",
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //   })
+      axios.get(url, {
+        params: {
+          populate: {
+            pos_user: {
+              populate: "*",
+            },
+            invoices_details: {
+              populate: {
+                product: {
+                  populate: "*",
+                },
+              },
+            },
           },
-        })
+        },
+      })
         .then((res) => {
           console.log("Invoice details response:", res.data.data);
           setDetails(res.data.data);
@@ -426,7 +455,7 @@ export default function InvoiceDetails() {
                 <p>{new Date(details?.createdAt).toLocaleString()}</p>
               </div>
               <div>
-                <span className="text-muted">Cashier:</span>
+                <span className="text-muted">{details?.pos_user?.user_role || "Unknown Role"}:</span>
                 <p>{details?.pos_user?.user_name || "Unknown"}</p>
               </div>
             </div>

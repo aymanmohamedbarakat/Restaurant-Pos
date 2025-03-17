@@ -226,9 +226,7 @@ import { FaReceipt, FaCalendarAlt } from "react-icons/fa";
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(
-    moment().format("YYYY-MM-DD")
-  );
+  const [selectedDate, setSelectedDate] = useState([]);
   const { domain } = useCategories();
   const { index, openDetails, setActiveInvoiceId } = useInvoiceDetails();
 
@@ -240,18 +238,18 @@ export default function Invoices() {
         setLoading(false);
         return;
       }
-      
+
       let user_id = userInfo.user_id;
-      
+
       if (!date) {
         date = moment().format("YYYY-MM-DD");
       } else {
         date = moment(date).format("YYYY-MM-DD");
       }
-      
+
       setLoading(true);
       console.log("Fetching invoices for date:", date, "user ID:", user_id);
-      
+
       let url = domain + "/api/invoices";
       axios
         .get(url, {
@@ -261,7 +259,7 @@ export default function Invoices() {
               $and: [
                 {
                   invoice_date: {
-                    $eq: date
+                    $eq: date,
                   },
                 },
                 {
@@ -299,6 +297,7 @@ export default function Invoices() {
   }, []);
 
   const handleDateChange = (e) => {
+    console.log('date00' + e.target.value)
     getInvoices(e.target.value);
     setSelectedDate(e.target.value);
   };
@@ -352,10 +351,7 @@ export default function Invoices() {
       ) : (
         <div className="row g-4">
           {invoices.map((invoice) => (
-            <div
-              key={invoice.documentId}
-              className="col-12 col-md-6 col-lg-4"
-            >
+            <div key={invoice.documentId} className="col-12 col-md-6 col-lg-4">
               <div
                 id={styles.invoiceCard}
                 className="card h-100 shadow-sm"
